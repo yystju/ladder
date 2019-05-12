@@ -44,8 +44,6 @@ func handleClientRequest(client net.Conn) {
 		return
 	}
 
-	defer client.Close()
-
 	var b [1024]byte
 	n, err := client.Read(b[:])
 
@@ -91,8 +89,24 @@ func handleClientRequest(client net.Conn) {
 
 		client.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}) //响应客户端连接成功
 
-		//进行转发
-		go io.Copy(server, client)
+		go func() {
+			io.Copy(server, client)
+
+			if client != nil {
+				client.Close()
+			}
+			if server != nil {
+				server.Close()
+			}
+		}()
+
 		io.Copy(client, server)
+
+		if client != nil {
+			client.Close()
+		}
+		if server != nil {
+			server.Close()
+		}
 	}
 }

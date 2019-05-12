@@ -12,22 +12,23 @@ import (
 
 const rootPEM = `
 -----BEGIN CERTIFICATE-----
-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
+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
+LB0=
 -----END CERTIFICATE-----`
 
 var (
@@ -80,9 +81,6 @@ func handler(server string, conn net.Conn, roots *x509.CertPool) {
 		return
 	}
 
-	defer remote.Close()
-	defer conn.Close()
-
 	cWriter := conn
 	rReader, err := NewReaderWrapper(remote), nil
 
@@ -97,6 +95,23 @@ func handler(server string, conn net.Conn, roots *x509.CertPool) {
 		log.Panic(err)
 	}
 
-	go io.Copy(cWriter, rReader)
+	go func() {
+		io.Copy(cWriter, rReader)
+
+		if remote != nil {
+			remote.Close()
+		}
+		if conn != nil {
+			conn.Close()
+		}
+	}()
+
 	io.Copy(rWriter, cReader)
+
+	if remote != nil {
+		remote.Close()
+	}
+	if conn != nil {
+		conn.Close()
+	}
 }
