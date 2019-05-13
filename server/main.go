@@ -38,7 +38,7 @@ func main() {
 
 	cfg := &tls.Config{
 		Certificates: []tls.Certificate{cert},
-		KeyLogWriter: os.Stdout,
+		// KeyLogWriter: os.Stdout,
 	}
 
 	listener, err := tls.Listen("tcp", local, cfg)

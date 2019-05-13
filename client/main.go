@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"net"
-	"os"
 )
 
 const rootPEM = `
@@ -74,8 +73,8 @@ func main() {
 
 func handler(server string, conn net.Conn, roots *x509.CertPool) {
 	remote, err := tls.Dial("tcp", server, &tls.Config{
-		RootCAs:      roots,
-		KeyLogWriter: os.Stdout,
+		RootCAs: roots,
+		// KeyLogWriter: os.Stdout,
 	})
 
 	if err != nil {
