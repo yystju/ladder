@@ -5,11 +5,12 @@ import (
 	"crypto/x509"
 	"flag"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 )
 
-const rootPEM = `
+const DEFAULT_CREDENTIAL = `
 -----BEGIN CERTIFICATE-----
 MIIDVTCCAj2gAwIBAgIJAMZ1iGRzPYBZMA0GCSqGSIb3DQEBCwUAMEExPzA9BgNV
 BAMMNmVjMi0xMy0xMTItODItMTQ0LmFwLW5vcnRoZWFzdC0xLmNvbXB1dGUuYW1h
@@ -33,19 +34,35 @@ O08sW3NjuUaBZyq5dB3+USUkbhGVlSyP0W83FOMtQjXaKR+UovbDg9s=
 `
 
 var (
-	server string
-	listen string
+	server     string
+	listen     string
+	credential string
 )
 
 func init() {
-	flag.StringVar(&server, "s", "localhost:2080", "...")
-	flag.StringVar(&listen, "l", "localhost:1080", "...")
+	flag.StringVar(&server, "s", "localhost:2080", "Server address")
+	flag.StringVar(&listen, "l", "localhost:1080", "Local listener address")
+	flag.StringVar(&credential, "c", "", "Credential File Path Name")
 	flag.Parse()
 
 	log.Printf("server : %s, listen : %s\n", server, listen)
 }
 
 func main() {
+	rootPEM := DEFAULT_CREDENTIAL
+
+	if "" != credential {
+		b, err := ioutil.ReadFile(credential)
+
+		if err != nil {
+			log.Panic(err)
+		}
+
+		rootPEM = string(b)
+	}
+
+	// log.Println(rootPEM)
+
 	roots := x509.NewCertPool()
 
 	ok := roots.AppendCertsFromPEM([]byte(rootPEM))
